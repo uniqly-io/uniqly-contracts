@@ -41,12 +41,12 @@ describe('UniqToken', function () {
         expect(await this.token.totalSupply()).to.be.bignumber.equal(tentho);
     });
 
-    it('publisher is owner', async function () {
+    it('a publisher is owner', async function () {
         expect(await this.token.owner()).to.be.equal(owner)
     });
 
     describe('Transfer', function () {
-        it('Owner transfer to recipient', async function () {
+        it('an owner transfers to recipient', async function () {
             expectEvent(await this.token.transfer(recipient, sto, { from: owner }),
                 'Transfer', {
                 from: owner,
@@ -54,13 +54,17 @@ describe('UniqToken', function () {
                 value: sto,
             });
         });
-        it('Recipient have proper balance after transfer', async function () {
+        it('a sender has a proper balance', async function () {
+            expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(new BN(tentho - sto));
+        })
+
+        it('a recipient has a proper balance after transfer', async function () {
             expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(sto);
         });
     });
 
     describe('Burn', function () {
-        it('Owner burn tokens', async function () {
+        it('an owner burns tokens', async function () {
             expectEvent(await this.token.burn(sto, { from: owner }),
                 'Transfer', {
                 from: owner,
@@ -68,13 +72,13 @@ describe('UniqToken', function () {
                 value: sto,
             })
         })
-        it('Total supply changed', async function () {
+        it('total supply changed', async function () {
             expect(await this.token.totalSupply()).to.be.bignumber.equal(new BN(tentho - sto));
         })
     });
 
     describe('Approve/allowance', function () {
-        it('Set allowance', async function () {
+        it('set allowance', async function () {
             expectEvent(await this.token.approve(minter, sto, { from: owner }),
                 'Approval', {
                 owner: owner,
@@ -82,7 +86,7 @@ describe('UniqToken', function () {
                 value: sto,
             })
         })
-        it('Use TransferFrom', async function () {
+        it('use TransferFrom', async function () {
             let twoEvents = await this.token.transferFrom(owner, anotherAccount, ten, { from: minter });
             expectEvent(twoEvents,
                 'Approval', {
@@ -97,7 +101,7 @@ describe('UniqToken', function () {
                 value: ten,
             })
         })
-        it('Use burnFrom', async function () {
+        it('use burnFrom', async function () {
             let twoEvents = await this.token.burnFrom(owner, ten, { from: minter });
             expectEvent(twoEvents, 'Transfer', {
                 from: owner,
@@ -119,11 +123,11 @@ describe('UniqToken', function () {
         let _symbol = 'USDT';
         let _decimals = ten;
 
-        it('Deploy rouge token contract', async function () {
+        it('deploy rouge token contract', async function () {
             // send usdt to contract address
             this.usdt = await usdToken.new(_initialSupply, _name, _symbol, _decimals, { from: minter });
         })
-        it('Transfer rouge tokens', async function () {
+        it('transfer rouge tokens', async function () {
             expectEvent(await this.usdt.transfer(this.token.address, ten, { from: minter }),
                 'Transfer', {
                 from: minter,
