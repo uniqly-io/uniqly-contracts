@@ -20,11 +20,11 @@ abstract contract IErc20 {
 /// @author rav3n_pl
 contract UniqVesting {
     // user is eligible to receive bonus NTF tokens (default=0)
-    mapping(address => uint256) internal _bonusNft;
+    mapping(address => uint256) internal _bonus;
 
     /// it will be used by future contract
-    function bonusNft(address user) external view returns (uint256) {
-        return _bonusNft[user];
+    function bonus(address user) external view returns (uint256) {
+        return _bonus[user];
     }
 
     // user has counted tokens from presale contract/s (default=false)
@@ -151,9 +151,9 @@ contract UniqVesting {
             // is user a patient one?
             // you've got a prize/s in near future!
             if (thisTime >= 60) {
-                _bonusNft[msg.sender] = 1;
+                _bonus[msg.sender] = 1;
                 if (thisTime == 100) {
-                    _bonusNft[msg.sender] = 2;
+                    _bonus[msg.sender] = 2;
                 }
             }
             // how many tokens it would be...
