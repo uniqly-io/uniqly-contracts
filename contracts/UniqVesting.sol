@@ -150,15 +150,20 @@ contract UniqVesting {
             uint256 thisTime = pct - _pctWithdrawn[msg.sender];
             // is user a patient one?
             // you've got a prize/s in near future!
-            if (thisTime >= 60) {
-                _bonus[msg.sender] = 1;
-                if (thisTime == 100) {
-                    _bonus[msg.sender] = 2;
+            if (pct > 59) {
+                // 60% for 1st bonus, even when initial 20% claimed
+                // but no bonus at all if claimed more than 20%
+                if (_pctWithdrawn[msg.sender] < 21) {
+                    _bonus[msg.sender] = 1;
+                    // second bonus after 100% and max 20% withdrawn
+                    if (pct == 100 && thisTime > 79) {
+                        _bonus[msg.sender] = 2;
+                    }
                 }
             }
             // how many tokens it would be...
             uint256 amt = (_tokensTotal[msg.sender] * thisTime) / 100;
-            // yes, no reentrance pls
+            // yes, no reentrance please
             _pctWithdrawn[msg.sender] += thisTime;
             // transfer tokens counted
             return IContracts(token).transfer(msg.sender, amt);
