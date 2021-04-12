@@ -10,7 +10,7 @@ const {
 const { ZERO_ADDRESS } = constants;
 
 const UniqToken = contract.fromArtifact("UniqToken");
-const UniqVesting = contract.fromArtifact("UniqVestingMock");
+const UniqVesting = contract.fromArtifact("UniqVesting");
 
 describe("UniqVesting", function () {
   const [
@@ -161,7 +161,7 @@ describe("UniqVesting", function () {
     });
 
     it("Should be able to claim once we reach startDate with no bonus", async function () {
-      const period1 = Number(startTime) + Number(time.duration.seconds(10)); // First vesting period
+      const period1 = Number(startTime) + Number(time.duration.days(1)); // First vesting period
       await time.increaseTo(period1);
 
       const initialBalance = await this.token.balanceOf(investor2);
@@ -180,7 +180,7 @@ describe("UniqVesting", function () {
     });
 
     it("Should be able to claim with a bonus after 10 vesting periods pass only if investor has claimed no more than 20% before", async function () {
-      const period11 = Number(startTime) + Number(time.duration.minutes(10)) + Number(time.duration.seconds(10)); // 11th vesting period
+      const period11 = Number(startTime) + Number(time.duration.weeks(10)) + Number(time.duration.days(1)); // 11th vesting period
 
       await time.increaseTo(period11);
 
@@ -200,8 +200,8 @@ describe("UniqVesting", function () {
     });
 
     it("Should be able to claim without a bonus after 10 vesting periods pass if investor has claimed more than 20% before", async function () {
-      const period2 = Number(startTime) + Number(time.duration.minutes(1)) + Number(time.duration.seconds(10)); // Second vesting period
-      const period11 = Number(startTime) + Number(time.duration.minutes(10)) + Number(time.duration.seconds(10)); // 11th vesting period
+      const period2 = Number(startTime) + Number(time.duration.weeks(1)) + Number(time.duration.days(1)); // Second vesting period
+      const period11 = Number(startTime) + Number(time.duration.weeks(10)) + Number(time.duration.days(1)); // 11th vesting period
 
       await time.increaseTo(period2);
 
@@ -228,8 +228,8 @@ describe("UniqVesting", function () {
     });
 
     it("Should be able to claim with a bonus after 20 vesting periods pass if investor has claimed no more than 20% before", async function () {
-      const period1 = Number(startTime) + Number(time.duration.seconds(10)); // First vesting period
-      const period21 = Number(startTime) + Number(time.duration.minutes(20)) + Number(time.duration.seconds(10)); // Vesting period over
+      const period1 = Number(startTime) + Number(time.duration.days(1)); // First vesting period
+      const period21 = Number(startTime) + Number(time.duration.weeks(20)) + Number(time.duration.days(1)); // Vesting period over
 
       await time.increaseTo(period1);
 
@@ -256,8 +256,8 @@ describe("UniqVesting", function () {
     });
 
     it("Should be able to claim without a bonus after 20 vesting periods pass if investor has claimed more than 20% before", async function () {
-      const period11 = Number(startTime) + Number(time.duration.minutes(10)) + Number(time.duration.seconds(10)); // Eleventh vesting period
-      const period21 = Number(startTime) + Number(time.duration.minutes(20)) + Number(time.duration.seconds(10)); // Vesting period over
+      const period11 = Number(startTime) + Number(time.duration.weeks(10)) + Number(time.duration.days(1)); // Eleventh vesting period
+      const period21 = Number(startTime) + Number(time.duration.weeks(20)) + Number(time.duration.days(1)); // Vesting period over
 
       await time.increaseTo(period11);
 
