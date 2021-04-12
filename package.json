@@ -6,7 +6,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --exit --recursive"
+    "test": "mocha --exit --recursive --timeout 5000"
   },
   "repository": "https://github.com/uniqly-io/uniqly-contracts.git",
   "author": "Mateusz Bosek <matt@uniqly.io>",

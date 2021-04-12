@@ -10,7 +10,7 @@ const {
 const { ZERO_ADDRESS } = constants;
 
 const UniqToken = contract.fromArtifact("UniqToken");
-const UniqVesting = contract.fromArtifact("UniqVesting");
+const UniqVesting = contract.fromArtifact("UniqVestingMock");
 
 describe("UniqVesting", function () {
   const [
@@ -332,7 +332,7 @@ describe("UniqVesting", function () {
 
       await expectRevert(
         this.vesting.acceptOwnership({ from: investor1 }),
-        "Ure not New Owner"
+        "You are not New Owner"
       );
     });
   });
@@ -379,7 +379,7 @@ describe("UniqVesting", function () {
           [investor4, investor5],
           [new BN(10000)],
           { from: owner }),
-        "Data length not math"
+        "Data length not match"
       );
     });
   });
