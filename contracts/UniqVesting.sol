@@ -1,25 +1,28 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Ulicense
 pragma solidity 0.8.2;
 
-// Presale and good ERC20 contracts interaction interface
-abstract contract IContracts {
-    function balanceOf(address) external virtual returns (uint256);
 
-    function transfer(address, uint256) external virtual returns (bool);
+// Presale and good ERC20 contracts interaction interface
+interface IContracts {
+    function balanceOf(address) external returns (uint256);
+
+    function transfer(address, uint256) external returns (bool);
 }
+
 
 // Broken ERC20 transfer for rescue ERC20 tokens
-abstract contract IErc20 {
-    function balanceOf(address) external virtual returns (uint256);
+interface IErc20 {
+    function balanceOf(address) external returns (uint256);
 
     // some tokens (like USDT) not return bool as standard require
-    function transfer(address, uint256) external virtual;
+    function transfer(address, uint256) external;
 }
+
 
 /// @title Uniqly vesting contract
 /// @author rav3n_pl
 contract UniqVesting {
-    // user is eligible to receive bonus NTF tokens (default=0)
+    // user is eligible to receive bonus NFT tokens (default=0)
     mapping(address => uint256) internal _bonus;
 
     /// it will be used by future contract
@@ -106,7 +109,7 @@ contract UniqVesting {
     @return number of tokens available for user
      */
     function balanceOf(address user) external view returns (uint256) {
-        return _tokensTotal[user] * ((100 - _pctWithdrawn[user]) / 100);
+        return (_tokensTotal[user] * (100 - _pctWithdrawn[user])) / 100;
     }
 
     // internal account init function checking and calculating amounts from contracts
@@ -181,14 +184,13 @@ contract UniqVesting {
     address public newOwner;
 
     // only current owner can delegate new one
-    function giveOwnership(address _newOwner) external {
-        require(msg.sender == owner, "Only for Owner");
+    function giveOwnership(address _newOwner) external onlyOwner {
         newOwner = _newOwner;
     }
 
     // new owner need to accept ownership
     function acceptOwnership() external {
-        require(msg.sender == newOwner, "Ure not New Owner");
+        require(msg.sender == newOwner, "You are not New Owner");
         newOwner = address(0);
         owner = msg.sender;
     }
@@ -199,6 +201,7 @@ contract UniqVesting {
     @param amount - tokens due
     */
     function addInvestor(address addr, uint256 amount) external onlyOwner {
+        require(block.timestamp < dateStart, "Too late do add investors");
         _addInvestor(addr, amount);
     }
 
@@ -211,7 +214,7 @@ contract UniqVesting {
         external
         onlyOwner
     {
-        require(addr.length == amount.length, "Data length not math");
+        require(addr.length == amount.length, "Data length not match");
         for (uint256 i = 0; i < addr.length; i++) {
             _addInvestor(addr[i], amount[i]);
         }
