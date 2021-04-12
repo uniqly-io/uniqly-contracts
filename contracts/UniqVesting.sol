@@ -201,6 +201,7 @@ contract UniqVesting {
     @param amount - tokens due
     */
     function addInvestor(address addr, uint256 amount) external onlyOwner {
+        require(block.timestamp < dateStart, "Too late do add investors");
         _addInvestor(addr, amount);
     }
 
@@ -213,6 +214,7 @@ contract UniqVesting {
         external
         onlyOwner
     {
+        require(block.timestamp < dateStart, "Too late do add investors");
         require(addr.length == amount.length, "Data length not match");
         for (uint256 i = 0; i < addr.length; i++) {
             _addInvestor(addr[i], amount[i]);
@@ -222,7 +224,6 @@ contract UniqVesting {
     // internal function adding investors
     function _addInvestor(address addr, uint256 amt) internal {
         require(_tokensTotal[addr] == 0, "Address already on list");
-        require(block.timestamp < dateStart, "Too late do add investors");
         _tokensTotal[addr] = amt;
     }
 
