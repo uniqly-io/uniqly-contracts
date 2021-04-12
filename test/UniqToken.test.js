@@ -18,7 +18,7 @@ describe('UniqToken', function () {
     const symbol = 'UNIQ';
 
     const tentho = new BN(10000);
-    const sto = new BN(100);
+    const hundred = new BN(100);
     const ten = new BN(10);
 
     before(async function () {
@@ -47,75 +47,73 @@ describe('UniqToken', function () {
 
     describe('Transfer', function () {
         it('an owner transfers to recipient', async function () {
-            expectEvent(await this.token.transfer(recipient, sto, { from: owner }),
+            expectEvent(await this.token.transfer(recipient, hundred, { from: owner }),
                 'Transfer', {
                 from: owner,
                 to: recipient,
-                value: sto,
+                value: hundred,
             });
         });
         it('a sender has a proper balance', async function () {
-            expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(new BN(tentho - sto));
+            expect(await this.token.balanceOf(owner)).to.be.bignumber.equal(new BN(tentho - hundred));
         })
 
         it('a recipient has a proper balance after transfer', async function () {
-            expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(sto);
+            expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(hundred);
         });
     });
 
     describe('Burn', function () {
         it('an owner burns tokens', async function () {
-            expectEvent(await this.token.burn(sto, { from: owner }),
+            expectEvent(await this.token.burn(hundred, { from: owner }),
                 'Transfer', {
                 from: owner,
                 to: ZERO_ADDRESS,
-                value: sto,
+                value: hundred,
             })
         })
         it('total supply changed', async function () {
-            expect(await this.token.totalSupply()).to.be.bignumber.equal(new BN(tentho - sto));
+            expect(await this.token.totalSupply()).to.be.bignumber.equal(new BN(tentho - hundred));
         })
     });
 
     describe('Approve/allowance', function () {
         it('set allowance', async function () {
-            expectEvent(await this.token.approve(minter, sto, { from: owner }),
+            expectEvent(await this.token.approve(minter, hundred, { from: owner }),
                 'Approval', {
                 owner: owner,
                 spender: minter,
-                value: sto,
+                value: hundred,
             })
-        })
-        it('use TransferFrom', async function () {
+        });
+        it('Use TransferFrom', async function () {
             let twoEvents = await this.token.transferFrom(owner, anotherAccount, ten, { from: minter });
-            expectEvent(twoEvents,
-                'Approval', {
-                owner: owner,
-                spender: minter,
-                value: new BN(90),
-            })
-            expectEvent(twoEvents,
-                'Transfer', {
+            expectEvent(twoEvents, 'Transfer', {
                 from: owner,
                 to: anotherAccount,
                 value: ten,
-            })
-        })
-        it('use burnFrom', async function () {
+            });
+            expectEvent(twoEvents, 'Approval', {
+                owner: owner,
+                spender: minter,
+                value: new BN(90),
+            });
+        });
+        it('Use burnFrom', async function () {
             let twoEvents = await this.token.burnFrom(owner, ten, { from: minter });
             expectEvent(twoEvents, 'Transfer', {
                 from: owner,
                 to: ZERO_ADDRESS,
                 value: ten,
-            })
+            });
             expectEvent(twoEvents, 'Approval', {
                 owner: owner,
                 spender: minter,
                 value: new BN(80),
-            })
-            expect(await this.token.totalSupply()).to.be.bignumber.equal(new BN(tentho - sto - ten))
-        })
-    })
+            });
+            expect(await this.token.totalSupply()).to.be.bignumber.equal(new BN(tentho - hundred - ten))
+        });
+    });
 
     describe('rescueERC20: Rouge token withdrawal', function () {
         let _initialSupply = tentho;
