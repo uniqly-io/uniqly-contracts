@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.2;
+pragma solidity 0.8.3;
 
 interface IERC20 {
     function balanceOf(address) external returns (uint256);
@@ -104,7 +104,7 @@ contract UniqStaking {
         }
     }
 
-    // return full pool prize URL
+    // return full pool gift URL
     function stakingGift(uint256 id) external view returns (string memory) {
         return string(abi.encodePacked(_baseURI, _poolInfo[id].image));
     }
@@ -112,11 +112,11 @@ contract UniqStaking {
     /**
     Open a new staking pool, starting now.
     @param _slots: max number of stake users
-    @param _stake: token amount
+    @param _stake: min token required
     @param _duration: lifetime of a pool in seconds
     @param _lockPeriod: time to stake (in seconds)
-    @param _image: URL of image prize
-    @param _name: name of pool/prize
+    @param _image: URL of image gift
+    @param _name: staking name
    */
     function addStakePool(
         uint256 _slots,
@@ -143,7 +143,6 @@ contract UniqStaking {
 
     /**
     Transfer ERC-20 token from sender's account to staking contract. 
-    Should be called after approval on front end.
    */
     function deposit(uint256 _pid, uint256 _amount) external {
         PoolInfo storage pool = _poolInfo[_pid];
@@ -179,7 +178,6 @@ contract UniqStaking {
 
     /**
     Returns full funded amount of ERC-20 token to requester if lock period is over
-    TODO: Determine how to reward with good.
    */
     function withdraw(uint256 _pid) external {
         PoolInfo storage pool = _poolInfo[_pid];
@@ -261,16 +259,6 @@ contract UniqStaking {
         return stakes;
     }
 
-    //ownership
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only for contract Owner");
-        _;
-    }
-
-    function changeOwner(address _newOwner) external onlyOwner {
-        newOwner = _newOwner;
-    }
-
     function acceptOwnership() external {
         require(
             msg.sender != address(0) && msg.sender == newOwner,
@@ -280,9 +268,16 @@ contract UniqStaking {
         owner = msg.sender;
     }
 
-    // only Owner specials functions
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only for contract Owner");
+        _;
+    }
 
-    // Update baseURI for pool prizes
+    function changeOwner(address _newOwner) external onlyOwner {
+        newOwner = _newOwner;
+    }
+
+    // Update baseURI for pool gifts
     function updateUri(string calldata uri) external onlyOwner {
         _baseURI = uri;
     }
