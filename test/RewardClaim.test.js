@@ -33,7 +33,7 @@ describe("RewardClaim test", function () {
 
         token = await mock_721.new({ from: owner });
         vesting = await mock_vest.new({ from: owner });
-        reward = await reward_claim.new(token.address, vesting.address, { from: owner });
+        reward = await reward_claim.new(vesting.address, token.address, { from: owner });
 
         await token.mint(20, owner, 0);
         let list = [[investor1, 1], [investor2, 2], [investor4, 1], [investor5, 2]]
@@ -51,7 +51,7 @@ describe("RewardClaim test", function () {
         it('claim investor1 properly', async function () {
             // investor1 should receive one token, nubmer 12
             await reward.claimReward({ from: investor1 })
-            expect(await token.ownerOf(12).to.eql(investor1))
+            expect(await token.ownerOf(12)).to.eql(investor1)
         })
         it('claim investor2 properly', async function () {
             // investor2 should receive two tokens, nubmer 10 and 11
