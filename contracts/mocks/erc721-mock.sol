@@ -2,9 +2,9 @@
 pragma solidity ^0.8.6;
 
 contract Erc721Mock {
-    mapping(uint256 => address) _owners;
+    mapping(uint256 => address) public ownerOf;
     mapping(address => mapping(address => bool)) public isApprovedForAll;
-    mapping(uint256 => address) _approved;
+    mapping(uint256 => address) public getApproved;
     uint256 public totalSupply;
     struct Royalty {
         address minter;
@@ -21,7 +21,7 @@ contract Erc721Mock {
         uint256 i;
         for (i; i < num; i++) {
             totalSupply++;
-            _owners[totalSupply] = own;
+            ownerOf[totalSupply] = own;
             _royalty[totalSupply] = Royalty(own, royalty);
         }
     }
@@ -31,8 +31,8 @@ contract Erc721Mock {
     }
 
     function approve(address user, uint256 token) external {
-        require(_owners[token] == msg.sender, "approve: not an owner");
-        _approved[token] = user;
+        require(ownerOf[token] == msg.sender, "approve: not an owner");
+        getApproved[token] = user;
     }
 
     function transferFrom(
@@ -40,8 +40,8 @@ contract Erc721Mock {
         address to,
         uint256 tokenId
     ) external {
-        if (_owners[tokenId] != from) {
-            if (_approved[tokenId] != msg.sender) {
+        if (ownerOf[tokenId] != from) {
+            if (getApproved[tokenId] != msg.sender) {
                 require(
                     isApprovedForAll[from][msg.sender],
                     "TransferFrom: no approval"
@@ -50,16 +50,8 @@ contract Erc721Mock {
         } else {
             require(from == msg.sender, "TransferFrom: Not an owner");
         }
-        delete _approved[tokenId];
-        _owners[tokenId] = to;
-    }
-
-    function getApproved(uint256 tokenId)
-        external
-        view
-        returns (address operator)
-    {
-        return _approved[tokenId];
+        delete getApproved[tokenId];
+        ownerOf[tokenId] = to;
     }
 
     function royaltyInfo(uint256 token)
