@@ -5,6 +5,8 @@ contract RewardClaim {
     address public immutable vestingAddress;
     address public immutable tokenAddress;
 
+    uint256 public claimedRewards;
+
     mapping(address => bool) public alreadyClaimed;
 
     uint256[] tokens;
@@ -30,6 +32,7 @@ contract RewardClaim {
                 msg.sender,
                 tokenId
             );
+            claimedRewards++;
         }
     }
 
@@ -39,6 +42,14 @@ contract RewardClaim {
         for (i; i < len; i++) {
             tokens.push(rewards[i]);
         }
+    }
+
+    function rewardsLeft() external view returns (uint256) {
+        return tokens.length;
+    }
+
+    function nextReward() external view returns (uint256) {
+        return tokens[tokens.length - 1];
     }
 
     //

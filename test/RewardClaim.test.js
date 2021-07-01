@@ -76,4 +76,14 @@ describe("RewardClaim test", function () {
             await expectRevert(reward.claimReward({ from: investor1 }), "Already claimed!")
         })
     })
+    describe('readers check', function () {
+        it('properly show rewards left', async function () {
+            ret = await reward.rewardsLeft();
+            expect(ret.toString()).to.eql('7')
+        })
+        it('properly show next reward', async function () {
+            ret = await reward.nextReward();
+            expect(ret.toString()).to.eql('6')
+        })
+    })
 })
