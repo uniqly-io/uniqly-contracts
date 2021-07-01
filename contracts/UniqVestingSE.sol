@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: Ulicense
 pragma solidity ^0.8.2;
 
-
 // Presale and good ERC20 contracts interaction interface
 interface IContracts {
-    function balanceOf(address) external returns (uint256);
-
     function transfer(address, uint256) external returns (bool);
 }
-
 
 // Broken ERC20 transfer for rescue ERC20 tokens
 interface IErc20 {
@@ -18,10 +14,10 @@ interface IErc20 {
     function transfer(address, uint256) external;
 }
 
-
 /// @title Uniqly vesting contract
+/// Users from external list (not presale contracts)
 /// @author rav3n_pl
-contract UniqVesting {
+contract UniqVestingSE {
     // user is eligible to receive bonus NFT tokens (default=0)
     mapping(address => uint256) internal _bonus;
 
@@ -30,11 +26,9 @@ contract UniqVesting {
         return _bonus[user];
     }
 
-    // user has counted tokens from presale contract/s (default=false)
-    mapping(address => bool) internal _initialized;
-
-    function initialized(address user) external view returns (bool) {
-        return _initialized[user];
+    // always true, for ABI/backend compatibility
+    function initialized(address) external pure returns (bool) {
+        return true;
     }
 
     // total amount of token bought by presale contracts (default=0)
@@ -54,20 +48,6 @@ contract UniqVesting {
     /// ERC20 token contract address
     address public immutable token;
 
-    address[] internal _presales;
-
-    /// set of addresses of presale contracts
-    function presales(uint256 num) external view returns (address) {
-        return _presales[num];
-    }
-
-    uint256[] internal _rates;
-
-    /// rates ETH/token for each contract
-    function rates(uint256 num) external view returns (uint256) {
-        return _rates[num];
-    }
-
     /// timestamp that users can start withdrawals
     uint256 public immutable dateStart;
     /// address of contract owner
@@ -76,53 +56,25 @@ contract UniqVesting {
     /**
     @dev contract constructor
     @param _token address of ERC20 token contract
-    @param _presale address[] of collection contract addresses
-    @param _rate uint256[] ETH/token conversion rate for each contract
     @param _dateStart uint256 timestamp from when users can start withdrawing tokens 
     */
-    constructor(
-        address _token,
-        address[] memory _presale,
-        uint256[] memory _rate,
-        uint256 _dateStart
-    ) {
+    constructor(address _token, uint256 _dateStart) {
         token = _token;
-        _presales = _presale;
-        _rates = _rate;
         dateStart = _dateStart;
         owner = msg.sender;
     }
 
-    /**
-    @dev user can call to calculate total tokens w/o taking them
-    @return total number of tokens eligible to withdraw
-    */
-    function calc() external returns (uint256) {
-        require(!_initialized[msg.sender], "Account already initialized");
-        _init(msg.sender);
+    // for ABI/backend compatibility
+    function calc() external view returns (uint256) {
         return _tokensTotal[msg.sender];
     }
 
     /**
     @dev Number of tokens eligible to withdraw
-    works only if user used calc() or claim() earlier
     @return number of tokens available for user
      */
     function balanceOf(address user) external view returns (uint256) {
         return (_tokensTotal[user] * (100 - _pctWithdrawn[user])) / 100;
-    }
-
-    // internal account init function checking and calculating amounts from contracts
-    function _init(address user) internal {
-        // for each presale contract
-        for (uint256 i = 0; i < _presales.length; i++) {
-            // count number of tokens
-            _tokensTotal[user] +=
-                IContracts(_presales[i]).balanceOf(user) *
-                _rates[i];
-        }
-        // don't do this again
-        _initialized[user] = true;
     }
 
     /**
@@ -132,10 +84,7 @@ contract UniqVesting {
     function claim() external returns (bool) {
         // can't work before timestamp
         require(block.timestamp > dateStart, "Initial vesting in progress");
-        // check for token amount if need
-        if (!_initialized[msg.sender]) {
-            _init(msg.sender);
-        }
+
         // initial percent is 20
         uint256 pct = 20;
         uint256 time = dateStart + 1 weeks;

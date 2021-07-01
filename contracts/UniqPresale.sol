@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity 0.8.2;
+pragma solidity ^0.8.2;
 
 //ERC20 functions for fallback tokens recovery
 abstract contract IERC20 {
