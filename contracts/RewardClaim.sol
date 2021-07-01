@@ -25,7 +25,11 @@ contract RewardClaim {
             uint256 tokenId = tokens[tokens.length - 1];
             tokens.pop();
             require(
-                Ierc721(tokenAddress).transfer(msg.sender, tokenId),
+                Ierc721(tokenAddress).transferFrom(
+                    address(this),
+                    msg.sender,
+                    tokenId
+                ),
                 "token transfer failed"
             );
         }
@@ -72,7 +76,7 @@ contract RewardClaim {
 
     function rescueNFT(address token, uint256 id) external onlyOwner {
         require(
-            Ierc721(token).transfer(msg.sender, id),
+            Ierc721(token).transferFrom(address(this), msg.sender, id),
             "token transfer failed"
         );
     }
@@ -83,7 +87,11 @@ interface Ivesting {
 }
 
 interface Ierc721 {
-    function transfer(address to, uint256 tokenId) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external returns (bool);
 }
 
 interface Ierc20 {
